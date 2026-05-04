@@ -39,8 +39,8 @@ const DashboardLayout = ({ children }) => {
       {/* Sidebar */}
       <aside className={`glass-card border-r-0 border-y-0 rounded-none transition-all duration-500 z-30 ${isSidebarOpen ? 'w-72' : 'w-24'}`}>
         <div className="p-8 flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-500/20">
-            W
+          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-lg shadow-indigo-500/20">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           {isSidebarOpen && (
             <div className="flex flex-col">

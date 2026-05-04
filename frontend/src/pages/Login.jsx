@@ -36,8 +36,8 @@ const Login = () => {
         </Link>
 
         <div className="text-center mb-12 animate-in fade-in slide-in-from-top-10 duration-700">
-          <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center text-white text-4xl font-black mx-auto mb-6 shadow-2xl shadow-indigo-500/40 rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-            W
+          <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center overflow-hidden shadow-2xl shadow-indigo-500/40 mx-auto mb-6 hover:scale-105 transition-transform cursor-pointer">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 glass-card border-indigo-500/30 rounded-full text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">
             <Sparkles size={12} /> Restricted Access

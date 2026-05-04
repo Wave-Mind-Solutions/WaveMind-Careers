@@ -38,8 +38,8 @@ const Home = () => {
           <div className="backdrop-blur-xl bg-white/5 rounded-2xl border border-white/10 px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-cyan-500/30 rotate-3">
-                  W
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-lg shadow-cyan-500/30 rotate-3">
+                  <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute -inset-1 bg-cyan-500/20 blur-xl rounded-full -z-10"></div>
               </div>
