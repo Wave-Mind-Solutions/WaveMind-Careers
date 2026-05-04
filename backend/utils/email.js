@@ -35,6 +35,7 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
         user: smtpUser,
         pass: smtpPass,
       },
+      family: 4 // Force IPv4
     });
 
     const mailOptions = {
