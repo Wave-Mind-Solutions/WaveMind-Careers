@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./config/db');
 require('dotenv').config();
 
-const app = express();
+// Initialise Firebase (Firestore + Storage) — must happen before routes
+require('./config/firebase');
 
-// Connect to Database
-connectDB();
+const app = express();
 
 // Middleware
 app.use(cors());
@@ -22,8 +21,11 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/offers', require('./routes/offers'));
 
 app.get('/', (req, res) => {
-  res.send('Wave Mind Talent Hub API is running...');
+  res.send('Wave Mind Talent Hub API is running (Firebase)...');
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+// Keep the process alive
+setInterval(() => {}, 60000);

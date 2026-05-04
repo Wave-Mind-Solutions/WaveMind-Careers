@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getJobs, createJob, updateJob, deleteJob } from '../api';
+import { getAdminJobs, createJob, updateJob, deleteJob } from '../api';
 import { Plus, Briefcase, MapPin, DollarSign, Trash2, Edit3, X, Zap } from 'lucide-react';
 
 const AdminJobs = () => {
@@ -21,7 +21,7 @@ const AdminJobs = () => {
 
   const fetchJobs = async () => {
     try {
-      const { data } = await getJobs();
+      const { data } = await getAdminJobs();
       setJobs(data);
     } catch (error) {
       console.error('Error fetching jobs:', error);

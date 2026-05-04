@@ -1,19 +1,30 @@
 const nodemailer = require('nodemailer');
-const Setting = require('../models/Setting');
+const { db } = require('../config/firebase');
 
-const sendEmail = async (to, subject, text, html) => {
+const sendEmail = async (to, subject, text, html, attachments = []) => {
   try {
-    const settings = await Setting.findOne();
-    const smtpUser = settings?.smtpUser || process.env.SMTP_USER;
-    const smtpPass = settings?.smtpPass || process.env.SMTP_PASS;
+    console.log(`Starting email delivery to: ${to}`);
+    
+    // Try to load SMTP settings from Firestore first, fall back to .env
+    let smtpUser = process.env.SMTP_USER;
+    let smtpPass = process.env.SMTP_PASS;
+    let smtpService = process.env.SMTP_SERVICE || 'gmail';
+
+    const settingsSnap = await db.collection('settings').limit(1).get();
+    if (!settingsSnap.empty) {
+      const settings = settingsSnap.docs[0].data();
+      smtpUser = settings?.smtpUser || smtpUser;
+      smtpPass = settings?.smtpPass || smtpPass;
+      smtpService = settings?.smtpService || smtpService;
+    }
 
     if (!smtpUser || !smtpPass) {
-      console.log('SMTP settings not configured in DB or .env. Email not sent.');
+      console.warn('⚠️ SMTP settings not configured (User/Pass missing). Skipping email.');
       return;
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: smtpService,
       auth: {
         user: smtpUser,
         pass: smtpPass,
@@ -26,12 +37,18 @@ const sendEmail = async (to, subject, text, html) => {
       subject,
       text,
       html,
+      attachments,
     };
 
+    console.log(`Attempting to send email via ${smtpService}...`);
     await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${to}`);
+    console.log(`✅ Email sent successfully to ${to}`);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Error sending email:', error.message);
+    // Log more details if it's an auth error
+    if (error.code === 'EAUTH') {
+      console.error('SMTP Authentication failed. Please check credentials and "App Password" settings.');
+    }
   }
 };
 

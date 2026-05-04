@@ -15,6 +15,7 @@ export const register = (formData) => API.post('/auth/register', formData);
 
 // Jobs
 export const getJobs = () => API.get('/jobs');
+export const getAdminJobs = () => API.get('/jobs/admin');
 export const createJob = (jobData) => API.post('/jobs', jobData);
 export const updateJob = (id, jobData) => API.put(`/jobs/${id}`, jobData);
 export const deleteJob = (id) => API.delete(`/jobs/${id}`);

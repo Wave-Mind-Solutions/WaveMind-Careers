@@ -6,7 +6,13 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'resumes',
-    resource_type: 'auto',
+    // 'raw' is safer for PDFs to avoid Cloudinary's image processing/validation
+    resource_type: 'raw',
+    // We can still suggest a format or let it be detected
+    public_id: (req, file) => {
+      const name = file.originalname.split('.')[0];
+      return `${Date.now()}-${name}`;
+    },
   },
 });
 

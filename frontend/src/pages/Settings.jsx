@@ -87,35 +87,187 @@ const Settings = () => {
               </div>
               
               <div className="space-y-8">
-                <div>
-                  <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Application Confirmation Subject</label>
-                  <input 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all" 
-                    value={settings.emailTemplates.applicationConfirmation.subject}
-                    onChange={(e) => setSettings({
-                      ...settings, 
-                      emailTemplates: {
-                        ...settings.emailTemplates,
-                        applicationConfirmation: { ...settings.emailTemplates.applicationConfirmation, subject: e.target.value }
-                      }
-                    })}
-                  />
+                <div className="grid md:grid-cols-2 gap-8 p-8 glass-card border-white/5 rounded-3xl bg-indigo-500/5">
+                  <div className="col-span-full">
+                    <h4 className="text-sm font-black text-indigo-400 uppercase tracking-widest mb-2">SMTP Configuration</h4>
+                    <p className="text-xs text-slate-500 mb-6">Enter your email server credentials to enable automated notifications.</p>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">SMTP Service</label>
+                    <select 
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm"
+                      value={settings.smtpService || 'gmail'}
+                      onChange={(e) => setSettings({ ...settings, smtpService: e.target.value })}
+                    >
+                      <option value="gmail" className="bg-slate-900">Gmail</option>
+                      <option value="outlook" className="bg-slate-900">Outlook</option>
+                      <option value="sendgrid" className="bg-slate-900">SendGrid</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">SMTP User (Email)</label>
+                    <input 
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm" 
+                      placeholder="your-email@gmail.com"
+                      value={settings.smtpUser || ''}
+                      onChange={(e) => setSettings({ ...settings, smtpUser: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-full">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">SMTP Password / App Password</label>
+                    <input 
+                      type="password"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm" 
+                      placeholder="••••••••••••••••"
+                      value={settings.smtpPass || ''}
+                      onChange={(e) => setSettings({ ...settings, smtpPass: e.target.value })}
+                    />
+                    <p className="text-[10px] text-slate-500 mt-3 italic">For Gmail, use a 16-character "App Password" from your Google Account security settings.</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Application Confirmation Body</label>
-                  <textarea 
-                    rows="4"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono text-sm" 
-                    value={settings.emailTemplates.applicationConfirmation.body}
-                    onChange={(e) => setSettings({
-                      ...settings, 
-                      emailTemplates: {
-                        ...settings.emailTemplates,
-                        applicationConfirmation: { ...settings.emailTemplates.applicationConfirmation, body: e.target.value }
-                      }
-                    })}
-                  />
-                  <p className="text-[10px] text-slate-600 mt-2 font-bold italic">Variables: {'{{name}}'}, {'{{job_title}}'}</p>
+
+                <div className="pt-8 border-t border-white/5 space-y-12">
+                  <h4 className="text-sm font-black text-indigo-400 uppercase tracking-widest">Template Customization</h4>
+                  
+                  {/* Application Received */}
+                  <div className="space-y-6 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <h5 className="text-xs font-black text-white uppercase tracking-widest">1. Application Received (Auto-Reply)</h5>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Subject Line</label>
+                        <input 
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm" 
+                          value={settings.emailTemplates.applicationConfirmation.subject}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              applicationConfirmation: { ...settings.emailTemplates.applicationConfirmation, subject: e.target.value }
+                            }
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Email Body</label>
+                        <textarea 
+                          rows="4"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono text-xs leading-relaxed" 
+                          value={settings.emailTemplates.applicationConfirmation.body}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              applicationConfirmation: { ...settings.emailTemplates.applicationConfirmation, body: e.target.value }
+                            }
+                          })}
+                        />
+                        <p className="text-[10px] text-slate-600 mt-3 font-bold italic">Variables: {'{{name}}'}, {'{{job_title}}'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interview Scheduled */}
+                  <div className="space-y-6 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <h5 className="text-xs font-black text-amber-400 uppercase tracking-widest">2. Interview Invitation</h5>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Subject Line</label>
+                        <input 
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm" 
+                          value={settings.emailTemplates.interviewScheduled?.subject || ''}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              interviewScheduled: { ...settings.emailTemplates.interviewScheduled, subject: e.target.value }
+                            }
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Email Body</label>
+                        <textarea 
+                          rows="4"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono text-xs leading-relaxed" 
+                          value={settings.emailTemplates.interviewScheduled?.body || ''}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              interviewScheduled: { ...settings.emailTemplates.interviewScheduled, body: e.target.value }
+                            }
+                          })}
+                        />
+                        <p className="text-[10px] text-slate-600 mt-3 font-bold italic">Variables: {'{{name}}'}, {'{{date}}'}, {'{{time}}'}, {'{{link}}'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Candidate Selected */}
+                  <div className="space-y-6 p-8 rounded-3xl bg-white/5 border border-white/5">
+                    <h5 className="text-xs font-black text-emerald-400 uppercase tracking-widest">3. Selection Notification</h5>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Subject Line</label>
+                        <input 
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all text-sm" 
+                          value={settings.emailTemplates.selected?.subject || ''}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              selected: { ...settings.emailTemplates.selected, subject: e.target.value }
+                            }
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Email Body</label>
+                        <textarea 
+                          rows="4"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-mono text-xs leading-relaxed" 
+                          value={settings.emailTemplates.selected?.body || ''}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            emailTemplates: {
+                              ...settings.emailTemplates,
+                              selected: { ...settings.emailTemplates.selected, body: e.target.value }
+                            }
+                          })}
+                        />
+                        <p className="text-[10px] text-slate-600 mt-3 font-bold italic">Variables: {'{{name}}'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Offer Letter Content Template */}
+                  <div className="space-y-6 p-8 rounded-3xl bg-indigo-500/10 border border-indigo-500/20">
+                    <h5 className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                      <Sparkles size={14} /> 4. Offer Letter PDF Template
+                    </h5>
+                    <div className="space-y-6">
+                      <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
+                        This content will be used to generate the official PDF offer letter. 
+                        Use placeholders to dynamically inject candidate information.
+                      </p>
+                      <div>
+                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Letter Content</label>
+                        <textarea 
+                          rows="10"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-serif text-sm leading-loose" 
+                          value={settings.offerLetterTemplate?.content || ''}
+                          onChange={(e) => setSettings({
+                            ...settings, 
+                            offerLetterTemplate: { ...settings.offerLetterTemplate, content: e.target.value }
+                          })}
+                          placeholder="Date: {{current_date}}&#10;&#10;Dear {{name}},&#10;&#10;We are pleased to offer you the position of {{role}}..."
+                        />
+                        <p className="text-[10px] text-slate-600 mt-4 font-bold italic">
+                          Placeholders: {'{{name}}'}, {'{{role}}'}, {'{{date}}'}, {'{{current_date}}'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
