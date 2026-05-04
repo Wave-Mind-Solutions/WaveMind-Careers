@@ -1,5 +1,11 @@
 const admin = require('firebase-admin');
 require('dotenv').config();
+const dns = require('dns');
+
+// Force IPv4 for Firebase connections to avoid ENETUNREACH errors on restricted networks
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({

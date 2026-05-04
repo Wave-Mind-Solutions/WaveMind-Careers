@@ -1,5 +1,11 @@
 const nodemailer = require('nodemailer');
 const { db } = require('../config/firebase');
+const dns = require('dns');
+
+// Force IPv4 for SMTP connections to avoid ENETUNREACH errors
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const sendEmail = async (to, subject, text, html, attachments = []) => {
   try {

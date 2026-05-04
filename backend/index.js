@@ -1,6 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const dns = require('dns');
+
+// Force IPv4 over IPv6 to prevent ENETUNREACH errors on networks that don't support IPv6
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 // Initialise Firebase (Firestore + Storage) — must happen before routes
 require('./config/firebase');
