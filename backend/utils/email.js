@@ -52,8 +52,8 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
 
     if (smtpService === 'gmail' || smtpUser.endsWith('@gmail.com')) {
       transporterConfig.host = resolvedHost;
-      transporterConfig.port = 587;
-      transporterConfig.secure = false; // STARTTLS
+      transporterConfig.port = 465;
+      transporterConfig.secure = true;
       transporterConfig.pool = true;
     } else {
       transporterConfig.service = smtpService;
@@ -80,6 +80,7 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
     console.log(`✅ Email sent successfully to ${to}`);
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
+    if (error.stack) console.error(error.stack);
     if (error.code === 'ETIMEDOUT') {
       console.error('Connection timed out. This often happens if the SMTP port is blocked by a firewall or ISP.');
     }
