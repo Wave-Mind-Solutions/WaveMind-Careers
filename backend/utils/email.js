@@ -31,15 +31,19 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
 
     const transporterConfig = {
       family: 4, // Force IPv4
-      connectionTimeout: 20000, // 20 seconds
-      greetingTimeout: 20000,
-      socketTimeout: 20000,
+      lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+      },
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
     };
 
     if (smtpService === 'gmail' || smtpUser.endsWith('@gmail.com')) {
       transporterConfig.host = 'smtp.gmail.com';
-      transporterConfig.port = 465;
-      transporterConfig.secure = true;
+      transporterConfig.port = 587;
+      transporterConfig.secure = false; // STARTTLS
+      transporterConfig.pool = true;
     } else {
       transporterConfig.service = smtpService;
     }
@@ -60,7 +64,7 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
       attachments,
     };
 
-    console.log(`Attempting to send email via ${transporterConfig.host || transporterConfig.service} (Port: ${transporterConfig.port || 'default'}, Secure: ${transporterConfig.secure || 'default'})...`);
+    console.log(`Attempting to send email via ${transporterConfig.host || transporterConfig.service} (Port: ${transporterConfig.port || 'default'}, Secure: ${transporterConfig.secure})...`);
     await transporter.sendMail(mailOptions);
     console.log(`✅ Email sent successfully to ${to}`);
   } catch (error) {
