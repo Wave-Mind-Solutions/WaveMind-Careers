@@ -29,14 +29,27 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
       return;
     }
 
-    const transporter = nodemailer.createTransport({
-      service: smtpService,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      family: 4 // Force IPv4
-    });
+    const transporterConfig = {
+      family: 4, // Force IPv4
+      connectionTimeout: 20000, // 20 seconds
+      greetingTimeout: 20000,
+      socketTimeout: 20000,
+    };
+
+    if (smtpService === 'gmail' || smtpUser.endsWith('@gmail.com')) {
+      transporterConfig.host = 'smtp.gmail.com';
+      transporterConfig.port = 465;
+      transporterConfig.secure = true;
+    } else {
+      transporterConfig.service = smtpService;
+    }
+
+    transporterConfig.auth = {
+      user: smtpUser,
+      pass: smtpPass,
+    };
+
+    const transporter = nodemailer.createTransport(transporterConfig);
 
     const mailOptions = {
       from: `"Wave Mind Talent Hub" <${smtpUser}>`,
@@ -47,11 +60,14 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
       attachments,
     };
 
-    console.log(`Attempting to send email via ${smtpService}...`);
+    console.log(`Attempting to send email via ${transporterConfig.host || transporterConfig.service} (Port: ${transporterConfig.port || 'default'}, Secure: ${transporterConfig.secure || 'default'})...`);
     await transporter.sendMail(mailOptions);
     console.log(`✅ Email sent successfully to ${to}`);
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
+    if (error.code === 'ETIMEDOUT') {
+      console.error('Connection timed out. This often happens if the SMTP port is blocked by a firewall or ISP.');
+    }
     // Log more details if it's an auth error
     if (error.code === 'EAUTH') {
       console.error('SMTP Authentication failed. Please check credentials and "App Password" settings.');

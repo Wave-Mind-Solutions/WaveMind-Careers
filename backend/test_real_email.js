@@ -1,5 +1,5 @@
-const sendEmail = require('./backend/utils/email');
-require('dotenv').config({ path: './backend/.env' });
+const sendEmail = require('./utils/email');
+require('dotenv').config();
 
 async function testEmail() {
   console.log('Testing email delivery with current credentials...');
