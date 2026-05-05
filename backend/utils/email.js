@@ -11,6 +11,17 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
   try {
     console.log(`Starting email delivery to: ${to}`);
     
+    // Resolve smtp.gmail.com to IPv4 manually to avoid any IPv6 attempts
+    let resolvedHost = 'smtp.gmail.com';
+    try {
+      const result = await dns.promises.lookup('smtp.gmail.com', { family: 4 });
+      if (result && result.address) {
+        resolvedHost = result.address;
+        console.log(`Resolved smtp.gmail.com to IPv4: ${resolvedHost}`);
+      }
+    } catch (dnsErr) {
+      console.warn('DNS resolution failed for smtp.gmail.com, falling back to hostname:', dnsErr.message);
+    }
     // Try to load SMTP settings from Firestore first, fall back to .env
     let smtpUser = process.env.SMTP_USER;
     let smtpPass = process.env.SMTP_PASS;
@@ -31,16 +42,16 @@ const sendEmail = async (to, subject, text, html, attachments = []) => {
 
     const transporterConfig = {
       family: 4, // Force IPv4
-      lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
-      connectionTimeout: 30000, // 30 seconds
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
+      connectionTimeout: 60000, // 60 seconds
+      greetingTimeout: 60000,
+      socketTimeout: 60000,
+      tls: {
+        servername: 'smtp.gmail.com'
+      }
     };
 
     if (smtpService === 'gmail' || smtpUser.endsWith('@gmail.com')) {
-      transporterConfig.host = 'smtp.gmail.com';
+      transporterConfig.host = resolvedHost;
       transporterConfig.port = 587;
       transporterConfig.secure = false; // STARTTLS
       transporterConfig.pool = true;
