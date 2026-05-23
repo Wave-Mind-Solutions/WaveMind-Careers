@@ -36,7 +36,7 @@ exports.scheduleInterview = async (req, res) => {
         if (template && candidate) {
           let body = template.body.replace('{{name}}', candidate.name);
           body = body.replace('{{date}}', date).replace('{{time}}', time).replace('{{link}}', meetingLink || '');
-          await sendEmail(candidate.email, template.subject, body, body);
+          sendEmail(candidate.email, template.subject, body, body);
         }
       }
     } catch (emailErr) {

@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Full-stack SaaS hiring platform",
   "scripts": {
-    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "backend": "cd backend && npm start",
-    "frontend": "cd frontend && npm run dev",
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+    "install-all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "backend": "npm --prefix backend start",
+    "backend:dev": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "dev": "concurrently -k -n \"backend,frontend\" -c \"cyan,magenta\" \"npm run backend:dev\" \"npm run frontend\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

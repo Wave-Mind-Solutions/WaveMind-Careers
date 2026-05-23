@@ -91,7 +91,7 @@ exports.apply = async (req, res) => {
           const body = template.body
             .replace('{{name}}', name)
             .replace('{{job_title}}', jobTitle || 'our open position');
-          await sendEmail(email, template.subject, body, body);
+          sendEmail(email, template.subject, body, body);
         }
       }
     } catch (emailErr) {
@@ -109,11 +109,14 @@ exports.getCandidates = async (req, res) => {
   try {
     const { status, source, roleType, page = 1, limit = 10 } = req.query;
 
-    const snap = await db.collection('candidates').get();
+    // Fetch candidates AND jobs in parallel — not sequentially
+    const [snap, jobsSnap] = await Promise.all([
+      db.collection('candidates').get(),
+      db.collection('jobs').get(),
+    ]);
     let all = snap.docs.map(toCandidate).sort(byCreatedAtDesc);
 
     // Populate job titles (in-memory join to avoid composite indexes)
-    const jobsSnap = await db.collection('jobs').get();
     const jobsMap = {};
     jobsSnap.forEach(doc => { jobsMap[doc.id] = doc.data().title; });
 
@@ -159,6 +162,8 @@ exports.updateStatus = async (req, res) => {
     };
 
     const updatedTimeline = [...(candidate.activityTimeline || []), newEntry];
+
+    // Update Firestore and prepare response
     await docRef.update({ status, activityTimeline: updatedTimeline });
 
     const updated = {
@@ -169,35 +174,38 @@ exports.updateStatus = async (req, res) => {
       activityTimeline: updatedTimeline,
     };
 
-    // Trigger email notifications
-    try {
-      const settingsSnap = await db.collection('settings').limit(1).get();
-      if (!settingsSnap.empty) {
-        const settings = settingsSnap.docs[0].data();
-        const templateMap = { Shortlisted: 'shortlisted', Selected: 'selected', 'Offer Sent': 'offerLetter' };
-        const templateKey = templateMap[status];
-
-        if (templateKey && settings?.emailTemplates?.[templateKey]) {
-          const template = settings.emailTemplates[templateKey];
-          const body = template.body.replace('{{name}}', candidate.name);
-          
-          let attachments = [];
-          if (status === 'Offer Sent' && req.body.offerContent) {
-            const pdfBuffer = await generatePDFBuffer(req.body.offerContent);
-            attachments.push({
-              filename: `Offer_Letter_${candidate.name.replace(/\s+/g, '_')}.pdf`,
-              content: pdfBuffer
-            });
-          }
-
-          await sendEmail(candidate.email, template.subject, body, body, attachments);
-        }
-      }
-    } catch (emailErr) {
-      console.error('Email notification failed:', emailErr);
-    }
-
+    // Respond immediately — don't block on email
     res.json(updated);
+
+    // Fire-and-forget email after response is sent
+    setImmediate(async () => {
+      try {
+        const settingsSnap = await db.collection('settings').limit(1).get();
+        if (!settingsSnap.empty) {
+          const settings = settingsSnap.docs[0].data();
+          const templateMap = { Shortlisted: 'shortlisted', Selected: 'selected', 'Offer Sent': 'offerLetter' };
+          const templateKey = templateMap[status];
+
+          if (templateKey && settings?.emailTemplates?.[templateKey]) {
+            const template = settings.emailTemplates[templateKey];
+            const body = template.body.replace('{{name}}', candidate.name);
+
+            let attachments = [];
+            if (status === 'Offer Sent' && req.body.offerContent) {
+              const pdfBuffer = await generatePDFBuffer(req.body.offerContent);
+              attachments.push({
+                filename: `Offer_Letter_${candidate.name.replace(/\s+/g, '_')}.pdf`,
+                content: pdfBuffer,
+              });
+            }
+
+            await sendEmail(candidate.email, template.subject, body, body, attachments);
+          }
+        }
+      } catch (emailErr) {
+        console.error('[Email] Post-response notification failed:', emailErr.message);
+      }
+    });
   } catch (error) {
     console.error('updateStatus error:', error);
     res.status(500).json({ message: error.message });
