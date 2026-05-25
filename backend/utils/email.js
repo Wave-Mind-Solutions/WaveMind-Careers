@@ -1,4 +1,11 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force IPv4 over IPv6 to prevent ENETUNREACH errors on networks/hosts with broken IPv6
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 const { db } = require('../config/firebase');
 
 /**
