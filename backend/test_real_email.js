@@ -6,7 +6,7 @@ async function testEmail() {
   
   // Note: During Resend onboarding, you can only send emails to the email address
   // you registered with (e.g. wavemindsolutions@gmail.com or htripathi9324@gmail.com).
-  const recipient = process.env.TEST_RECIPIENT || 'htripathi9324@gmail.com';
+  const recipient = process.env.TEST_RECIPIENT || 'wavemindsolutions@gmail.com';
   
   const result = await sendEmail(
     recipient, 
