@@ -1,50 +1,38 @@
-const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-// Force IPv4 over IPv6 to prevent ENETUNREACH errors on networks/hosts with broken IPv6
-if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder('ipv4first');
-}
-
+const { Resend } = require('resend');
 require('dotenv').config();
 
 const testEmail = async () => {
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const apiKey = process.env.RESEND_API_KEY;
 
-    console.log(`Using User: ${smtpUser}`);
-    console.log('Attempting connection to SMTP...');
+    console.log('Attempting connection to Resend API...');
+    if (!apiKey) {
+        console.error('❌ Error: RESEND_API_KEY is not set in environment.');
+        return;
+    }
 
-    const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true, // use SSL
-        auth: {
-            user: smtpUser,
-            pass: smtpPass,
-        },
-        connectionTimeout: 10000, // 10 seconds
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
-    });
+    const resend = new Resend(apiKey);
 
     try {
-        console.log('Verifying transporter...');
-        await transporter.verify();
-        console.log('✅ Transporter is ready to take our messages');
+        const sender = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+        // Note: Unless a custom domain is verified in Resend, you can only send emails
+        // to the email address used to sign up (wavemindsolutions@gmail.com).
+        const recipient = 'wavemindsolutions@gmail.com'; 
 
-        const mailOptions = {
-            from: `"Wave Mind Debug" <${smtpUser}>`,
-            to: smtpUser, // Send to self for test
-            subject: 'Debug Email',
-            text: 'This is a debug email to test connectivity.',
-        };
+        console.log(`Sending debug email from "${sender}" to "${recipient}"...`);
+        const response = await resend.emails.send({
+            from: `Wave Mind Debug <${sender}>`,
+            to: recipient,
+            subject: 'Resend Debug Email',
+            html: '<p>Congrats on sending your <strong>first email via Resend</strong>!</p>',
+        });
 
-        console.log('Sending test email...');
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ Message sent: %s', info.messageId);
+        if (response.error) {
+            console.error('❌ Resend API Error:', response.error.message);
+        } else {
+            console.log('✅ Message sent successfully! ID:', response.data.id);
+        }
     } catch (error) {
-        console.error('❌ SMTP Error:', error);
+        console.error('❌ Resend Client Error:', error);
     }
 };
 

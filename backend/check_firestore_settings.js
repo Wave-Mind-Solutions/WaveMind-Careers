@@ -9,10 +9,7 @@ const checkSettings = async () => {
         } else {
             const settings = settingsSnap.docs[0].data();
             console.log('Settings found in Firestore:', {
-                smtpUser: settings.smtpUser,
-                smtpService: settings.smtpService,
-                // Don't log password for security, just check if it exists
-                hasPass: !!settings.smtpPass
+                hasResendApiKey: !!settings.resendApiKey
             });
         }
     } catch (error) {

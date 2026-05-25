@@ -9,8 +9,7 @@ async function checkSettings() {
       snap.forEach(doc => {
         const data = doc.data();
         console.log('Settings Document Found:', doc.id);
-        console.log('SMTP User:', data.smtpUser || 'MISSING');
-        console.log('SMTP Pass:', data.smtpPass ? '******' : 'MISSING');
+        console.log('Resend API Key (Firestore):', data.resendApiKey ? '******' : 'MISSING');
         console.log('Templates:', Object.keys(data.emailTemplates || {}));
       });
     }
